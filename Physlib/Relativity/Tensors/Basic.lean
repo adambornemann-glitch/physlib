@@ -6,6 +6,7 @@ Authors: Joseph Tooby-Smith
 module
 
 public import Physlib.Relativity.Tensors.TensorSpecies.Basic
+public import Physlib.Relativity.Tensors.Contraction.SuccSuccAbove
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
 public import Mathlib.Analysis.RCLike.Basic
 public import Mathlib.Tactic.Cases
@@ -678,6 +679,45 @@ lemma PermCond.comp {n n1 n2 : ℕ} {c : Fin n → C} {c1 : Fin n1 → C}
     simp only [Function.comp_apply]
     rw [h.2, h2.2]
 
+open Fin in
+lemma PermCond.succSuccAbove {n n1 : ℕ} {c : Fin (n + 1 + 1) → C}
+    {c1 : Fin (n1 + 1 + 1) → C}
+    (i j : Fin (n1 + 1 + 1)) (hij : i ≠ j)
+    {σ : Fin (n1 + 1 + 1) → Fin (n + 1 + 1)} (hσ : PermCond c c1 σ) :
+    PermCond (c ∘ succSuccAbove (σ i) (σ j))
+      (c1 ∘ succSuccAbove i j) (funPredPredAbove i j hij σ hσ.1) := by
+  apply And.intro
+  · exact funPredPredAbove_bijective i j hij σ hσ.left
+  · intro m
+    simp [funPredPredAbove, hσ.2]
+
+open Fin in
+lemma PermCond.succSuccAbove_comm {n : ℕ} {c : Fin (n + 1 + 1 + 1 + 1) → C}
+    (i1 j1 : Fin (n + 1 + 1 + 1 + 1)) (i2 j2 : Fin (n + 1 + 1))
+    (hij1 : i1 ≠ j1) (hij2 : i2 ≠ j2) :
+    let i2' := (i1.succSuccAbove j1 i2);
+    let j2' := (i1.succSuccAbove j1 j2);
+    have hi2j2' : i2' ≠ j2' := by simp [i2', j2', hij2];
+    let i1' := (predPredAbove i2' j2' hi2j2' i1 (by simp [i2', j2']));
+    let j1' := (predPredAbove i2' j2' hi2j2' j1 (by simp [i2', j2']));
+    PermCond ((c ∘ i2'.succSuccAbove j2') ∘ i1'.succSuccAbove j1')
+      ((c ∘ i1.succSuccAbove j1) ∘ i2.succSuccAbove  j2) id := by
+  apply And.intro (Function.bijective_id)
+  simp only [id_eq, Function.comp_apply]
+  intro i
+  rw [succSuccAbove_comm_apply]
+  · simp [hij1]
+  · simp [hij2]
+
+open Fin in
+lemma PermCond.append_right_succSuccAbove {n n1 : ℕ} {c : Fin (n + 1 + 1) → C}
+    {c1 : Fin n1 → C} (i j : Fin (n + 1 + 1)) :
+    PermCond (Fin.append c1 c ∘ (Fin.succSuccAbove (finSumFinEquiv (m := n1) (Sum.inr i))
+        (finSumFinEquiv (m := n1) (Sum.inr j))))
+      (Fin.append c1 (c ∘ (i.succSuccAbove j))) id := by
+  apply And.intro (Function.bijective_id)
+  simp [forall_fin_add, succSuccAbove_comm_natAdd i j, succSuccAbove_natAdd_apply_castAdd i j]
+
 TODO "Prove that if `σ` satisfies `PermCond c c1 σ` then `PermCond.inv σ h`
   satisfies `PermCond c1 c (PermCond.inv σ h)`."
 
@@ -687,6 +727,7 @@ lemma fin_cast_permCond (n n1 : ℕ) {c : Fin n → C} (h : n1 = n) :
   · exact Equiv.bijective (finCongr h)
   · intro i
     rfl
+
 /-!
 
 ## Permutations
