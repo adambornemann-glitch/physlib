@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Gregory J. Loges. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Adam Bornemann, Gregory J. Loges
+Authors: Gregory J. Loges
 -/
 module
 
@@ -29,12 +29,6 @@ composition of partial linear maps while having the domain implicitly accounted 
     with natural domain `{x : f.domain | f x ∈ g.domain}`.
 - `LinearPMap.instMonoid` : Partial linear maps `E →ₗ.[R] E` with `compRestricted`
     for multiplication and the identity map for `1` comprise a monoid.
-- `LinearPMap.unitaryConj` : The conjugation `U A U⁻¹ : H' →ₗ.[ℂ] H'` of `A` by `U`, with domain
-    `U (A.domain)`.
-- `LinearPMap.IsFormalAdjoint.unitaryConj` : Unitary conjugation preserves formal-adjoint pairs.
-- `LinearPMap.unitaryConj_dense_domain` : If `A` has dense domain, then so does `U A U⁻¹`.
-- `LinearPMap.unitaryConj_sub_smul_surjective` : If `A - z` is surjective for a scalar `z : ℂ`,
-    then so is `U A U⁻¹ - z`.
 
 ## iii. Table of contents
 
@@ -44,7 +38,6 @@ composition of partial linear maps while having the domain implicitly accounted 
 - D. Restricted composition
 - E. Monoid
 - F. Inverses
-- G. Unitary conjugation
 
 ## iv. References
 
@@ -389,72 +382,4 @@ lemma compRestricted_inverse_eq : f ∘ᵣ f.inverse = domRestrict 1 f.inverse.d
 
 end Inverses
 
-/-!
-## G. Unitary conjugation
--/
-
-section UnitaryConj
-
-variable {H H' : Type*}
-  [NormedAddCommGroup H] [InnerProductSpace ℂ H]
-  [NormedAddCommGroup H'] [InnerProductSpace ℂ H']
-
-variable (U : H ≃ₗᵢ[ℂ] H') (A : H →ₗ.[ℂ] H)
-
-/-- The conjugation `U A U⁻¹` of a partially-defined operator `A : H →ₗ.[ℂ] H` by a unitary
-`U : H ≃ₗᵢ[ℂ] H'`, with domain `U (A.domain) = U⁻¹ ⁻¹' (A.domain)` and action
-`y ↦ U (A (U⁻¹ y))`. Since `U` and `U⁻¹` are `ℂ`-linear, the result is again `ℂ`-linear. -/
-def unitaryConj : H' →ₗ.[ℂ] H' where
-  domain := A.domain.comap (U.symm.toLinearEquiv : H' →ₗ[ℂ] H)
-  toFun := U.toLinearEquiv.toLinearMap.comp <| A.toFun.comp
-    (((U.symm.toLinearEquiv : H' →ₗ[ℂ] H).comp
-      (A.domain.comap (U.symm.toLinearEquiv : H' →ₗ[ℂ] H)).subtype).codRestrict A.domain
-        fun x => x.2)
-
-/-- Membership in the conjugated domain: `x ∈ D(U A U⁻¹) ↔ U⁻¹ x ∈ D(A)`. -/
-lemma mem_unitaryConj_domain_iff {x : H'} :
-    x ∈ (unitaryConj U A).domain ↔ U.symm x ∈ A.domain := Iff.rfl
-
-/-- The defining formula `(U A U⁻¹) x = U (A (U⁻¹ x))`. -/
-lemma unitaryConj_apply (x : (unitaryConj U A).domain) :
-    unitaryConj U A x = U (A ⟨U.symm (x : H'), (mem_unitaryConj_domain_iff U A).mp x.2⟩) := rfl
-
-/-- `U` maps `D(A)` into `D(U A U⁻¹)`. -/
-lemma map_mem_unitaryConj_domain (y : A.domain) : U (y : H) ∈ (unitaryConj U A).domain := by
-  simpa only [mem_unitaryConj_domain_iff, U.symm_apply_apply] using y.2
-
-/-- The action on the image domain: `(U A U⁻¹)(U y) = U (A y)` for `y ∈ D(A)`. -/
-lemma unitaryConj_apply_map (y : A.domain) :
-    unitaryConj U A ⟨U (y : H), map_mem_unitaryConj_domain U A y⟩ = U (A y) := by
-  simp only [unitaryConj_apply, U.symm_apply_apply]
-
-variable {U A}
-
-open scoped InnerProductSpace in
-/-- Unitary conjugation preserves formal adjointness. If `A` is a formal adjoint of `B`, then
-`U A U⁻¹` is a formal adjoint of `U B U⁻¹`. Unitary conjugation preserves symmetry when `A = B`. -/
-lemma IsFormalAdjoint.unitaryConj {B : H →ₗ.[ℂ] H} (h : A.IsFormalAdjoint B) :
-    (unitaryConj U A).IsFormalAdjoint (unitaryConj U B) := by
-  intro x y
-  let x' : A.domain := ⟨U.symm (x : H'), (mem_unitaryConj_domain_iff U A).mp x.2⟩
-  let y' : B.domain := ⟨U.symm (y : H'), (mem_unitaryConj_domain_iff U B).mp y.2⟩
-  calc ⟪LinearPMap.unitaryConj U A x, (y : H')⟫_ℂ
-      = ⟪A x', (y' : H)⟫_ℂ := U.inner_map_eq_flip _ _
-    _ = ⟪(x' : H), B y'⟫_ℂ := h x' y'
-    _ = ⟪(x : H'), LinearPMap.unitaryConj U B y⟫_ℂ := U.symm.inner_map_eq_flip _ _
-
-/-- If `A` has dense domain, then so does `U A U⁻¹`: the domain `U⁻¹ ⁻¹' (A.domain)` is the
-preimage of a dense set under a homeomorphism. -/
-lemma unitaryConj_dense_domain (hdense : Dense (A.domain : Set H)) :
-    Dense ((unitaryConj U A).domain : Set H') := hdense.preimage U.symm.toHomeomorph.isOpenMap
-
-/-- If `A - z` is surjective for a scalar `z : ℂ`, then so is `U A U⁻¹ - z`. -/
-lemma unitaryConj_sub_smul_surjective {z : ℂ}
-    (h : ∀ φ : H, ∃ ψ : A.domain, A ψ - z • (ψ : H) = φ) (φ : H') :
-    ∃ ψ : (unitaryConj U A).domain, unitaryConj U A ψ - z • (ψ : H') = φ := by
-  obtain ⟨w, hw⟩ := h (U.symm φ)
-  refine ⟨⟨U (w : H), map_mem_unitaryConj_domain U A w⟩, ?_⟩
-  rw [unitaryConj_apply_map, ← _root_.map_smul U, ← _root_.map_sub, hw, U.apply_symm_apply]
-
-end UnitaryConj
 end LinearPMap
