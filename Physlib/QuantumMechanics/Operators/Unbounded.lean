@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Gregory J. Loges. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gregory J. Loges
+Authors: Adam Bornemann, Gregory J. Loges
 -/
 module
 
@@ -701,6 +701,34 @@ lemma IsSelfAdjoint.real_smul [CompleteSpace H] (h : IsSelfAdjoint T) {r : ℝ} 
 @[aesop safe apply]
 lemma IsSelfAdjoint.neg [CompleteSpace H] (h : IsSelfAdjoint T) : IsSelfAdjoint (-T) :=
   neg_eq_neg_one_smul T ▸ smul h (by norm_num) (by norm_num)
+
+/-- Self-adjointness from surjectivity of `T ± i`. A symmetric (`T.IsSymmetric`),densely-defined
+operator `T` for which `T + i` and `T - i` are both surjective onto `H`, is self-adjoint. -/
+lemma IsSelfAdjoint.of_surjective_add_sub [CompleteSpace H] (hsym : T.IsSymmetric)
+    (hdense : Dense (T.domain : Set H))
+    (hplus : ∀ φ : H, ∃ ψ : T.domain, T ψ + I • (ψ : H) = φ)
+    (hminus : ∀ φ : H, ∃ ψ : T.domain, T ψ - I • (ψ : H) = φ) : IsSelfAdjoint T := by
+  rw [isSelfAdjoint_def]
+  have hle : T ≤ T.adjoint := (isSymmetric_def.mp hsym).le_adjoint hdense
+  apply le_antisymm _ hle
+  apply le_of_eqLocus_ge
+  intro w hw
+  let W : T.adjoint.domain := ⟨w, hw⟩
+  obtain ⟨x, hx⟩ := hminus (T.adjoint W - I • (W : H))
+  set X : T.adjoint.domain := ⟨x, hle.1 x.2⟩ with hX
+  have hxeq : T.adjoint X = T x := (hle.2 (x := x) (y := X) rfl).symm
+  have hdiff : T.adjoint (W - X) = I • ((W - X) : H) := by
+    rw [LinearPMap.map_sub, hxeq, hX, Subtype.coe_mk, smul_sub, sub_eq_sub_iff_sub_eq_sub, hx]
+  have hker : ∀ w : T.adjoint.domain, T.adjoint w = I • (w : H) → (w : H) = 0 := by
+    intro w hw
+    obtain ⟨v, hv⟩ := hplus (w : H)
+    suffices ⟪↑w, T v + I • v⟫_ℂ = 0 by
+      exact inner_self_eq_zero.mp (hv ▸ this)
+    rw [inner_add_right, inner_smul_right, ← adjoint_isFormalAdjoint hdense w v, hw,
+      inner_smul_left, conj_I]
+    ring
+  obtain rfl : w = (x : H) := sub_eq_zero.mp (hker (W - X) hdiff)
+  exact ⟨hw, x.2, hxeq⟩
 
 /-!
 ### C.3. Essentially self-adjoint operators
