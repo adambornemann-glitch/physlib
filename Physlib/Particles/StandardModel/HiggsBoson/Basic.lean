@@ -188,6 +188,9 @@ instance : DistribMulAction StandardModel.GaugeGroupI HiggsVec where
   smul_zero g := by simp [gaugeGroupI_smul_eq_U1_smul_SU2]
   smul_add g φ ψ := by simp [gaugeGroupI_smul_eq_U1_smul_SU2, mulVec_add]
 
+TODO "Change the action of `GaugeGroupI` on `HiggsVec` to be a representation
+  rather than a `MulAction`."
+
 instance : SMulCommClass ℂ GaugeGroupI HiggsVec where
   smul_comm r g φ := by simp [gaugeGroupI_smul_eq, mulVec_smul, smul_comm r]
 
