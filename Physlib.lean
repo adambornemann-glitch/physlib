@@ -90,6 +90,7 @@ public import Physlib.Mathematics.DataStructures.FourTree.UniqueMap
 public import Physlib.Mathematics.DataStructures.Matrix.LieTrace
 public import Physlib.Mathematics.Distribution.Basic
 public import Physlib.Mathematics.Distribution.PowMul
+public import Physlib.Mathematics.Distribution.Tempered
 public import Physlib.Mathematics.FDerivCurry
 public import Physlib.Mathematics.Fin
 public import Physlib.Mathematics.Fin.Involutions
@@ -297,6 +298,7 @@ public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.DirichletSubmodule
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.Fourier
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.PolyBddSchwartzSubmodule
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.SchwartzSubmodule
+public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.SobolevSubmodule
 public import Physlib.QuantumMechanics.Hydrogen.Basic
 public import Physlib.QuantumMechanics.Hydrogen.LaplaceRungeLenzVector
 public import Physlib.QuantumMechanics.InfiniteSquareWell.Basic
