@@ -15,22 +15,19 @@ public import Mathlib.Analysis.Distribution.TemperedDistribution
 
 Mathlib provides the linear embedding `MeasureTheory.Lp.toTemperedDistribution` of `Lp`
 classes into tempered distributions, for a measure of temperate growth. In this module we
-record the basic API for this embedding in the plain-function spelling used downstream: it
-is injective, additive and commutes with scalar multiplication, and, for a symbol `g` of
-temperate growth, the distributional identity `g · φ = u` (via `smulLeftCLM`) holds iff the
-pointwise product `g • φ` is almost everywhere equal to `u`.
+record how this embedding interacts with multiplication by temperate-growth symbols: the
+distributional identity `g · φ = u` (via `smulLeftCLM`) holds iff the pointwise product
+`g • φ` is almost everywhere equal to `u`.
 
 ## ii. Key results
 
-- `MeasureTheory.Lp.toTemperedDistribution_injective` : the embedding `Lp → 𝓢'` is injective.
 - `MeasureTheory.Lp.smulLeftCLM_toTemperedDistribution_eq_iff` : the distributional identity
   `g · φ = u` (via `smulLeftCLM`) holds iff `g • ⇑φ =ᵐ ⇑u` pointwise a.e.
   (forward direction: `MeasureTheory.Lp.smul_coeFn_ae_eq_of_smulLeftCLM_eq`).
 
 ## iii. Table of contents
 
-- A. Linearity and injectivity of the embedding
-- B. Multiplication by temperate-growth symbols
+- A. Multiplication by temperate-growth symbols
 
 ## iv. References
 
@@ -44,43 +41,11 @@ namespace Lp
 open TemperedDistribution
 open scoped SchwartzMap ENNReal
 
-variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F]
-  [NormedSpace ℂ F] [CompleteSpace F] [MeasurableSpace E] [BorelSpace E] {μ : Measure E}
-  [μ.HasTemperateGrowth] {p : ℝ≥0∞} [Fact (1 ≤ p)]
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [MeasurableSpace E]
+  [BorelSpace E] {μ : Measure E} [μ.HasTemperateGrowth] {p : ℝ≥0∞} [Fact (1 ≤ p)]
 
 /-!
-## A. Linearity and injectivity of the embedding
--/
-
-/-- The embedding of `Lp` into tempered distributions is injective. -/
-lemma toTemperedDistribution_injective [FiniteDimensional ℝ E] [IsLocallyFiniteMeasure μ] :
-    Function.Injective (toTemperedDistribution (E := E) (F := F) (p := p) (μ := μ)) :=
-  LinearMap.ker_eq_bot.mp ker_toTemperedDistributionCLM_eq_bot
-
-/- The next three lemmas restate `map_add`/`map_smul`/`map_zero` of
-`toTemperedDistributionCLM` in the plain-function spelling `Lp.toTemperedDistribution` used
-by downstream statements; the composed-CLM form does not match it syntactically. -/
-
-/-- The embedding `Lp → 𝓢'` is additive. -/
-@[simp]
-lemma toTemperedDistribution_add (ψ φ : Lp F p μ) :
-    toTemperedDistribution (ψ + φ) = toTemperedDistribution ψ + toTemperedDistribution φ :=
-  map_add (toTemperedDistributionCLM F μ p) ψ φ
-
-/-- The embedding `Lp → 𝓢'` commutes with scalar multiplication. -/
-@[simp]
-lemma toTemperedDistribution_smul (c : ℂ) (ψ : Lp F p μ) :
-    toTemperedDistribution (c • ψ) = c • toTemperedDistribution ψ :=
-  map_smul (toTemperedDistributionCLM F μ p) c ψ
-
-/-- The embedding `Lp → 𝓢'` sends zero to zero. -/
-@[simp]
-lemma toTemperedDistribution_zero :
-    toTemperedDistribution (0 : Lp F p μ) = 0 :=
-  map_zero (toTemperedDistributionCLM F μ p)
-
-/-!
-## B. Multiplication by temperate-growth symbols
+## A. Multiplication by temperate-growth symbols
 -/
 
 variable [FiniteDimensional ℝ E] [IsLocallyFiniteMeasure μ]

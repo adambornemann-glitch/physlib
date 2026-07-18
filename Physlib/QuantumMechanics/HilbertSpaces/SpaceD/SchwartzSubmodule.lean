@@ -58,10 +58,6 @@ def schwartzIncl {d : ℕ} (μ : Measure (Space d)) [μ.HasTemperateGrowth] :
     𝓢(Space d, ℂ) →L[ℂ] SpaceDHilbertSpace d μ :=
   toLpCLM ℂ ℂ 2 μ
 
-/-- Applying `schwartzIncl` to a Schwartz map `g` gives its `Lp` class `g.toLp 2 μ`. -/
-lemma schwartzIncl_apply {d : ℕ} (μ : Measure (Space d)) [μ.HasTemperateGrowth]
-    (g : 𝓢(Space d, ℂ)) : schwartzIncl μ g = g.toLp 2 μ := rfl
-
 /-- The submodule of `SpaceDHilbertSpace d` corresponding to Schwartz maps. -/
 abbrev SchwartzSubmodule (d : ℕ) (μ : Measure (Space d) := volume) [μ.HasTemperateGrowth] :
     Submodule ℂ (SpaceDHilbertSpace d μ) :=
