@@ -6,7 +6,6 @@ Authors: Adam Bornemann
 module
 
 public import Mathlib.Analysis.Distribution.Sobolev
-public import Physlib.Mathematics.Distribution.Tempered
 public import Physlib.QuantumMechanics.HilbertSpaces.SpaceD.SchwartzSubmodule
 /-!
 
