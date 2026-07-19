@@ -74,13 +74,13 @@ lemma smul_coeFn_ae_eq_of_smulLeftCLM_eq {g : E → ℂ} (hg : g.HasTemperateGro
   have htest := DFunLike.congr_fun h T
   rw [smulLeftCLM_apply_apply, toTemperedDistribution_apply, toTemperedDistribution_apply]
     at htest
-  calc ∫ x, t x • (g • (φ : E → ℂ)) x ∂μ
-      = ∫ x, SchwartzMap.smulLeftCLM ℂ g T x • (φ : E → ℂ) x ∂μ := by
-        apply integral_congr_ae
-        filter_upwards with x
-        simp only [SchwartzMap.smulLeftCLM_apply_apply hg, hT_apply, Pi.smul_apply', smul_eq_mul,
-          Complex.real_smul]
-        ring
+  calc
+    _ = ∫ x, SchwartzMap.smulLeftCLM ℂ g T x • (φ : E → ℂ) x ∂μ := by
+      apply integral_congr_ae
+      filter_upwards with x
+      simp only [SchwartzMap.smulLeftCLM_apply_apply hg, hT_apply, Pi.smul_apply', smul_eq_mul,
+        Complex.real_smul]
+      ring
     _ = ∫ x, T x • (u : E → ℂ) x ∂μ := htest
     _ = ∫ x, t x • (u : E → ℂ) x ∂μ := by
       apply integral_congr_ae
