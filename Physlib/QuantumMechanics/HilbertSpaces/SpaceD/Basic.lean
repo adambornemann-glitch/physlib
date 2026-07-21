@@ -1,10 +1,12 @@
 /-
 Copyright (c) 2026 Gregory J. Loges. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gregory J. Loges
+Authors: Adam Bornemann, Gregory J. Loges
 -/
 module
 
+public import Mathlib.Analysis.Distribution.SchwartzSpace.Basic
+public import Mathlib.Analysis.Distribution.Sobolev
 public import Mathlib.Analysis.InnerProductSpace.Dual
 public import Mathlib.MeasureTheory.Function.L2Space
 public import Physlib.SpaceAndTime.Space.Module
@@ -50,7 +52,8 @@ equivalence classes, essentially dropping information about the functions on the
   - A.2. Membership
   - A.3. Construction of elements
   - A.4. Coersions
-  - A.5. Misc.
+  - A.5. Tempered Distribution
+  - A.6. Misc.
 - B. SpaceDHilbertSpaceOn
 
 ## iv. References
@@ -64,6 +67,7 @@ noncomputable section
 namespace QuantumMechanics
 
 open Function InnerProductSpace MeasureTheory Measure Set
+open scoped SchwartzMap
 
 /-!
 ## A. SpaceDHilbertSpace
@@ -212,7 +216,23 @@ lemma coeFn_smul : ⇑(c • ψ) =ᵐ[μ] c • ψ := Lp.coeFn_smul _ _
 end
 
 /-!
-### A.5. Misc.
+### A.5. Tempered Distribution
+-/
+variable {d : ℕ} {μ : Measure (Space d)}
+
+/-- The tempered distribution associated to a state: the alias of `Lp.toTemperedDistribution`
+with `E = Space d`, `F = ℂ` and `p = 2` fixed, as `SpaceDHilbertSpace` is of `Lp`. -/
+noncomputable abbrev toTemperedDistribution [μ.HasTemperateGrowth]
+    (ψ : SpaceDHilbertSpace d μ) : 𝓢'(Space d, ℂ) := Lp.toTemperedDistribution ψ
+
+/-- The embedding of states into tempered distributions as a continuous linear map: the alias
+of `Lp.toTemperedDistributionCLM` with `E = Space d`, `F = ℂ` and `p = 2` fixed. -/
+noncomputable abbrev toTemperedDistributionCLM (d : ℕ) (μ : Measure (Space d) := volume)
+    [μ.HasTemperateGrowth] : SpaceDHilbertSpace d μ →L[ℂ] 𝓢'(Space d, ℂ) :=
+  Lp.toTemperedDistributionCLM ℂ μ 2
+
+/-!
+### A.6. Misc.
 -/
 
 open Filter in

@@ -17,8 +17,6 @@ In this module we define the Sobolev submodules of `SpaceDHilbertSpace`.
 
 ## ii. Key results
 
-- `toTemperedDistribution` / `toTemperedDistributionCLM` : the tempered distribution of a
-    state, aliases of the `Lp` versions with `E = Space d`, `F = ℂ` and `p = 2` fixed.
 - `SobolevSubmodule d s` : the Sobolev space `H^s` as a submodule of `SpaceDHilbertSpace d`.
 - `SobolevSubmodule.schwartzIncl_mem` / `schwartzSubmodule_le_sobolevSubmodule` /
     `SobolevSubmodule.dense` : Schwartz maps lie in every `H^s`, which is therefore dense.
@@ -26,8 +24,7 @@ In this module we define the Sobolev submodules of `SpaceDHilbertSpace`.
 
 ## iii. Table of contents
 
-- A. The tempered distribution of a state
-- B. The Sobolev submodule `H^s`
+- A. The Sobolev submodule `H^s`
 
 ## iv. References
 
@@ -44,31 +41,10 @@ open scoped SchwartzMap
 variable {d : ℕ} {μ : Measure (Space d)} [μ.HasTemperateGrowth]
 
 /-!
-## A. The tempered distribution of a state
+## A. The Sobolev submodule `H^s`
 -/
 
-/-- The tempered distribution associated to a state: the alias of `Lp.toTemperedDistribution`
-with `E = Space d`, `F = ℂ` and `p = 2` fixed, as `SpaceDHilbertSpace` is of `Lp`. -/
-noncomputable abbrev toTemperedDistribution (ψ : SpaceDHilbertSpace d μ) : 𝓢'(Space d, ℂ) :=
-  Lp.toTemperedDistribution ψ
-
-/-- The embedding of states into tempered distributions as a continuous linear map: the alias
-of `Lp.toTemperedDistributionCLM` with `E = Space d`, `F = ℂ` and `p = 2` fixed. -/
-noncomputable abbrev toTemperedDistributionCLM (d : ℕ) (μ : Measure (Space d) := volume)
-    [μ.HasTemperateGrowth] : SpaceDHilbertSpace d μ →L[ℂ] 𝓢'(Space d, ℂ) :=
-  Lp.toTemperedDistributionCLM ℂ μ 2
-
-/-- The tempered distribution of the L² class of a Schwartz map is the map's own tempered
-distribution. -/
-lemma SchwartzSubmodule.toTemperedDistribution_schwartzIncl_eq (g : 𝓢(Space d, ℂ)) :
-    toTemperedDistribution (schwartzIncl μ g) = g.toTemperedDistributionCLM (Space d) ℂ μ :=
-  Lp.toTemperedDistribution_toLp_eq g
-
-/-!
-## B. The Sobolev submodule `H^s`
--/
-
-/-- The **Sobolev space** `H^s` as a submodule of `SpaceDHilbertSpace d`: the L² classes whose
+/-- The Sobolev space `H^s` as a submodule of `SpaceDHilbertSpace d`: the L² classes whose
 associated tempered distribution satisfies `MemSobolev s 2`. -/
 def SobolevSubmodule (d : ℕ) (s : ℝ) : Submodule ℂ (SpaceDHilbertSpace d) where
   carrier := {ψ | MemSobolev s 2 (toTemperedDistributionCLM d volume ψ)}
@@ -103,5 +79,4 @@ lemma SobolevSubmodule.antitone (d : ℕ) : Antitone (SobolevSubmodule d) :=
   fun _ _ h _ hψ => hψ.mono h
 
 end SpaceDHilbertSpace
-
 end QuantumMechanics
