@@ -620,6 +620,25 @@ lemma unitaryConj_apply_map (y : A.domain) :
     unitaryConj u A ⟨u (y : H), map_mem_unitaryConj_domain u A y⟩ = u (A y) := by
   simp only [unitaryConj_apply, u.symm_apply_apply]
 
+/-- Unitary conjugation is monotone for the extension order on partial linear maps. -/
+lemma unitaryConj_mono (u : H ≃ₗᵢ[ℂ] H') {A B : H →ₗ.[ℂ] H} (h : A ≤ B) :
+    unitaryConj u A ≤ unitaryConj u B :=
+  ⟨fun _ hx => h.1 hx, fun x y hxy =>
+    congrArg u (h.2 (x := ⟨u.symm ↑x, x.2⟩) (y := ⟨u.symm ↑y, y.2⟩) (congrArg u.symm hxy))⟩
+
+/-- Conjugating by `u` and then by `u⁻¹` recovers the original operator. -/
+@[simp]
+lemma unitaryConj_symm_unitaryConj (u : H ≃ₗᵢ[ℂ] H') (A : H →ₗ.[ℂ] H) :
+    unitaryConj u.symm (unitaryConj u A) = A := by
+  ext x hx hx'
+  · simp [mem_unitaryConj_domain_iff]
+  · simp [unitaryConj_apply]
+
+/-- Conjugating by `u⁻¹` and then by `u` recovers the original operator. -/
+@[simp]
+lemma unitaryConj_unitaryConj_symm (u : H ≃ₗᵢ[ℂ] H') (B : H' →ₗ.[ℂ] H') :
+    unitaryConj u (unitaryConj u.symm B) = B := unitaryConj_symm_unitaryConj u.symm B
+
 variable {u A}
 
 open scoped InnerProductSpace in
@@ -639,6 +658,19 @@ lemma IsFormalAdjoint.unitaryConj {B : H →ₗ.[ℂ] H} (h : A.IsFormalAdjoint 
 preimage of a dense set under a homeomorphism. -/
 lemma HasDenseDomain.unitaryConj_dense_domain (hdense : A.HasDenseDomain) :
     (unitaryConj u A).HasDenseDomain := hdense.preimage u.symm.toHomeomorph.isOpenMap
+
+/-- Unitary conjugation commutes with the adjoint `(u A u⁻¹)† = u A† u⁻¹` for a densely defined `A`.
+-/
+lemma unitaryConj_adjoint
+    [CompleteSpace H] [CompleteSpace H'] (u : H ≃ₗᵢ[ℂ] H') (hdense : A.HasDenseDomain) :
+    (unitaryConj u A)† = unitaryConj u A† := by
+  have hd' : (unitaryConj u A).HasDenseDomain := hdense.unitaryConj_dense_domain
+  refine le_antisymm ?_ (((adjoint_isFormalAdjoint hdense).symm.unitaryConj).le_adjoint hd')
+  have h₁ : unitaryConj u.symm ((unitaryConj u A)†) ≤ (unitaryConj u.symm (unitaryConj u A))† :=
+    ((adjoint_isFormalAdjoint hd').symm.unitaryConj).le_adjoint hd'.unitaryConj_dense_domain
+  rw [unitaryConj_symm_unitaryConj] at h₁
+  have h₂ := unitaryConj_mono u h₁
+  rwa [unitaryConj_unitaryConj_symm] at h₂
 
 /-- If `A - z` is surjective for a scalar `z : ℂ`, then so is `u A u⁻¹ - z`. -/
 lemma unitaryConj_sub_smul_surjective {z : ℂ} (h : Function.Surjective (A - z • 1).toFun) :
