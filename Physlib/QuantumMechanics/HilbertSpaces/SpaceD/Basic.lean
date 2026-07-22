@@ -218,8 +218,6 @@ end
 ### A.5. Misc.
 -/
 
-variable {d : ℕ} {μ : Measure (Space d)}
-
 /-- The tempered distribution associated to a state. -/
 abbrev toTemperedDistribution [μ.HasTemperateGrowth]
     (ψ : SpaceDHilbertSpace d μ) : 𝓢'(Space d, ℂ) := Lp.toTemperedDistribution ψ
